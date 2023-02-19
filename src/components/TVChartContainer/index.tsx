@@ -26,7 +26,20 @@ export interface ChartContainerProps {
 	container: ChartingLibraryWidgetOptions['container'];
 }
 
-export function TVChartContainer(props: Partial<ChartContainerProps>): JSX.Element {
+export function TVChartContainer({
+	symbol = 'AAPL',
+	interval = 'D' as ResolutionString,
+	datafeedUrl = 'https://demo_feed.tradingview.com',
+	libraryPath = '/charting_library/',
+	chartsStorageUrl = 'https://saveload.tradingview.com',
+	chartsStorageApiVersion = '1.1',
+	clientId = 'tradingview.com',
+	userId = 'public_user_id',
+	fullscreen = false,
+	autosize = true,
+	studiesOverrides = {},
+	container,
+}: Partial<ChartContainerProps>): JSX.Element {
 	const ref = useRef<HTMLDivElement>(null);
 
 	function getLanguageFromURL(): LanguageCode | null {
@@ -41,29 +54,26 @@ export function TVChartContainer(props: Partial<ChartContainerProps>): JSX.Eleme
 		if (!ref.current) {
 			return;
 		}
-
-		console.log('carlos', (window as any).TradingView);
-		console.log('carlos', props.datafeedUrl);
 		const widgetOptions: ChartingLibraryWidgetOptions = {
-			symbol: props.symbol as string,
+			symbol: symbol as string,
 			// BEWARE: no trailing slash is expected in feed URL
 			// tslint:disable-next-line:no-any
-			datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(props.datafeedUrl),
+			datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(datafeedUrl),
 
-			interval: props.interval as ChartingLibraryWidgetOptions['interval'],
+			interval: interval as ChartingLibraryWidgetOptions['interval'],
 			container: ref.current,
-			library_path: props.libraryPath as string,
+			library_path: libraryPath as string,
 
 			locale: getLanguageFromURL() || 'en',
 			disabled_features: ['use_localstorage_for_settings'],
 			enabled_features: ['study_templates'],
-			charts_storage_url: props.chartsStorageUrl,
-			charts_storage_api_version: props.chartsStorageApiVersion,
-			client_id: props.clientId,
-			user_id: props.userId,
-			fullscreen: props.fullscreen,
+			charts_storage_url: chartsStorageUrl,
+			charts_storage_api_version: chartsStorageApiVersion,
+			client_id: clientId,
+			user_id: userId,
+			fullscreen: fullscreen,
 			autosize: false,
-			studies_overrides: props.studiesOverrides,
+			studies_overrides: studiesOverrides,
 		};
 
 		const tvWidget = new widget(widgetOptions);
@@ -90,7 +100,18 @@ export function TVChartContainer(props: Partial<ChartContainerProps>): JSX.Eleme
 				tvWidget.remove();
 			}
 		};
-	}, [props]);
+	}, [
+		symbol,
+		interval,
+		datafeedUrl,
+		libraryPath,
+		chartsStorageUrl,
+		chartsStorageApiVersion,
+		clientId,
+		userId,
+		fullscreen,
+		studiesOverrides,
+	]);
 
 	return <div ref={ref} className={'TVChartContainer'} />;
 }
